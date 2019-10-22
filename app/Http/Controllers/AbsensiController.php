@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Absensi;
 use App\Jadwal;
+use App\Jurnal;
 use Illuminate\Http\Request;
 
 class AbsensiController extends Controller
@@ -11,15 +12,15 @@ class AbsensiController extends Controller
     public function index($id, $pertemuan)
     {
         $jadwal = Jadwal::dosen()->where('schedulable_id', auth()->user()->authable_id)->whereId($id)->with('matkul')->firstOrFail();
-        $absensi = Absensi::with('jurnal:id,jadwal_id,pertemuan')->first();
+        $jurnal = Jurnal::with('absensi')->where('jadwal_id', $id)->where('pertemuan', $pertemuan)->first();
 
-        return view('dosen.absensi', compact(['jadwal', 'absensi']));
+        return view('dosen.absensi', compact(['jadwal', 'jurnal']));
     }
 
-    public function getDatatables()
+    public function getDatatables($jurnal_id)
     {
         if (request()->ajax()) {
-            $absensi = Absensi::with('mahasiswa.authInfo')->get();
+            $absensi = Absensi::with('mahasiswa.authInfo')->where('jurnal_id', $jurnal_id)->get();
 
             return datatables()->of($absensi)
                 ->editColumn('photo', function ($absensi) {

@@ -142,7 +142,7 @@
                 order: [
                     [0, 'desc']
                 ],
-                ajax: '{{ route("admin.datatables.jadwalmahasiswa") }}',
+                ajax: '{{ route("admin.datatables.jadwalmahasiswa", $jadwal->matkul_id) }}',
                 columns: [
                     { data: 'nomor_induk' },
                     { data: 'nama' },

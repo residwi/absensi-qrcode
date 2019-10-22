@@ -4,9 +4,9 @@
 @section('title_prefix', 'Absensi - ')
 
 @section('content_header')
-<h1>Absensi pertemuan ke - {{ $absensi->jurnal->pertemuan }}</h1>
+<h1>Absensi pertemuan ke - {{ $jurnal->pertemuan }}</h1>
 
-{{ Breadcrumbs::render('absensi', $jadwal, $absensi->jurnal) }}
+{{ Breadcrumbs::render('absensi', $jadwal, $jurnal) }}
 @stop
 
 @section('css')
@@ -147,7 +147,7 @@
                 order: [
                     [0, 'desc']
                 ],
-                ajax: '{{ route("dosen.jadwal.absensi.datatables", ['id' => $absensi->id, 'pertemuan' => $absensi->jurnal->pertemuan]) }}',
+                ajax: '{{ route("dosen.jadwal.absensi.datatables", ['id' => $jurnal->id, 'pertemuan' => $jurnal->pertemuan]) }}',
                 columns: [
                     { data: 'nomor_induk' },
                     { data: 'nama' },
@@ -164,7 +164,7 @@
             var value = $(this).val();
             $.ajax({
                 type: 'POST',
-                url: '{{ route("dosen.jadwal.absensi.update", ['id' => $absensi->id, 'pertemuan' => $absensi->jurnal->pertemuan]) }}',
+                url: '{{ route("dosen.jadwal.absensi.update", ['id' => $jurnal->id, 'pertemuan' => $jurnal->pertemuan]) }}',
                 data:{
                     mahasiswa: mahasiswa,
                     status: value

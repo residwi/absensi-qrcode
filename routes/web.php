@@ -56,7 +56,7 @@ Route::group([
         Route::get('/matkul/search', 'Admin\MatkulController@ajaxSearch')->name('admin.ajaxsearch.matkul');
 
         Route::get('/jadwal/datatables', 'JadwalController@getDatatables')->name('admin.datatables.jadwal');
-        Route::get('/jadwalmahasiswa/datatables', 'JadwalController@getDatatablesMahasiswa')->name('admin.datatables.jadwalmahasiswa');
+        Route::get('/jadwal/{id}/mahasiswa/datatables', 'JadwalController@getDatatablesMahasiswa')->name('admin.datatables.jadwalmahasiswa');
     });
 });
 

@@ -256,10 +256,10 @@ class JadwalController extends Controller
         }
     }
 
-    public function getDatatablesMahasiswa()
+    public function getDatatablesMahasiswa($matkul_id)
     {
         if (request()->ajax()) {
-            $mahasiswa = Jadwal::mahasiswa()->with('schedulable.authInfo')->get();
+            $mahasiswa = Jadwal::mahasiswa()->with('schedulable.authInfo')->where('matkul_id', $matkul_id)->get();
 
             return datatables()->of($mahasiswa)
                 ->addColumn('nomor_induk', function ($mahasiswa) {
