@@ -15,8 +15,7 @@
         <div class="box">
             <!-- /.box-header -->
             <div class="box-body">
-                <form role="form" method="POST" action="{{ route('jadwal.store') }}"
-                    enctype="multipart/form-data">
+                <form role="form" method="POST" action="{{ route('jadwal.store') }}">
                     @csrf
                     <div class="box-body">
                         <div class="form-group has-feedback {{ $errors->has('matkul') ? 'has-error' : '' }}">

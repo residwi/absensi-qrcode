@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Dosen;
+use App\Http\Requests\JadwalRequest;
 use App\Jadwal;
 use App\Jurnal;
 use App\Mahasiswa;
@@ -36,16 +37,9 @@ class JadwalController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(JadwalRequest $request)
     {
-        $validated = $request->validate([
-            'matkul' =>  'required|unique:jadwal,matkul_id',
-            'dosen' => 'required',
-            'hari' => 'required',
-            'jam_mulai' => 'required',
-            'jam_selesai' => 'required',
-        ]);
-
+        $validated = $request->validated();
         $dosen = Dosen::find($validated['dosen']);
         $jadwal = $dosen->schedules()->create([
             'matkul_id' => $validated['matkul'],
@@ -98,16 +92,9 @@ class JadwalController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(JadwalRequest $request, $id)
     {
-        $validated = $request->validate([
-            'matkul' =>  'required',
-            'dosen' => 'required',
-            'hari' => 'required',
-            'jam_mulai' => 'required',
-            'jam_selesai' => 'required',
-        ]);
-
+        $validated = $request->validated();
         $jadwal = Jadwal::find($id);
 
         $jadwal->matkul_id = $validated['matkul'];
