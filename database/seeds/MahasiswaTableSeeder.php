@@ -12,7 +12,7 @@ class MahasiswaTableSeeder extends Seeder
     public function run()
     {
         factory(App\Mahasiswa::class, 10)->create()->each(function ($mahasiswa) {
-            $mahasiswa->authInfo()->save(factory(App\User::class)->make());
+            $mahasiswa->authInfo()->save(factory(App\User::class)->make(['role_id' => 3]));
         });
     }
 }

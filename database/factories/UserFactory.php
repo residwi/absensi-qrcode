@@ -25,6 +25,6 @@ $factory->define(User::class, function (Faker $faker) {
         'remember_token' => Str::random(10),
         'authable_type' => '',
         'authable_id' => '',
-        'role_id' => $faker->randomElement([2, 3])
+        'role_id' => ''
     ];
 });
