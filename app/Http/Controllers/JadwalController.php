@@ -286,7 +286,7 @@ class JadwalController extends Controller
 
     public function addJadwalMahasiswa(Request $request, $jadwal_id)
     {
-        $jadwal = Jadwal::find($jadwal_id)->first();
+        $jadwal = Jadwal::find($jadwal_id);
 
         $validated = $request->validate([
             'mahasiswa' =>  'required',
