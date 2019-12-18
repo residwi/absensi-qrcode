@@ -28,7 +28,7 @@
             <!-- /.box-header -->
             <div class="box-body">
                 <div class="row margin">
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <ul class="list-unstyled">
                             <li class="margin-bottom"><strong><i class="fas fa-fw fa-book"></i> Mata Kuliah</strong>
                             </li>
@@ -36,7 +36,7 @@
                             <li><b>Nama</b> : {{ $jadwal->matkul->nama }}</li>
                         </ul>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <ul class="list-unstyled">
                             <li class="margin-bottom"><strong><i class="fas fa-fw fa-user-tie"></i> Dosen
                                     Pengajar</strong></li>
@@ -44,12 +44,19 @@
                             <li><b>Nama</b> : {{ $jadwal->schedulable->nama }}</li>
                         </ul>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <ul class="list-unstyled">
                             <li class="margin-bottom"><strong><i class="fas fa-fw fa-clock"></i> Hari & Jam</strong>
                             </li>
                             <li><b>Jam</b> : {{ $jadwal->jam_mulai . ' - ' . $jadwal->jam_selesai }}</li>
                             <li><b>Hari</b> : {{ $jadwal->hari }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-3">
+                        <ul class="list-unstyled">
+                            <li class="margin-bottom"><strong><i class="fas fa-fw fa-qrcode"></i> QR Code Absen</strong>
+                            </li>
+                            <li><a href="{{ route('jadwal.jurnal.qrcode', $jadwal->id) }}" type="button" class="btn btn-success"><i class="fas fa-fw fa-download"></i> Download</a></li>
                         </ul>
                     </div>
                 </div>
@@ -95,7 +102,8 @@
                     <ul class="list-unstyled"></ul>
                 </div>
                 <form id="form-validasi-absensi" role="form">
-                    @csrf
+                    {{-- @csrf --}}
+                    <input type="hidden" id="id-mahasiswa">
                     <div class="form-group">
                         <label for="mahasiswa">Status Absen</label>
                         <select style="width: 100%;" id="mahasiswa" class="form-control" name="mahasiswa">
@@ -147,7 +155,7 @@
                 order: [
                     [0, 'desc']
                 ],
-                ajax: '{{ route("dosen.jadwal.absensi.datatables", ['id' => $jurnal->id, 'pertemuan' => $jurnal->pertemuan]) }}',
+                ajax: '{{ route("jadwal.absensi.datatables", ['id' => $jurnal->id, 'pertemuan' => $jurnal->pertemuan]) }}',
                 columns: [
                     { data: 'nomor_induk' },
                     { data: 'nama' },
@@ -159,17 +167,28 @@
                 ]
             });
 
+        $('body').on('click', '.edit-absensi', function () {
+            var mahasiswa_id = $(this).data('id');
+            $('#id-mahasiswa').val(mahasiswa_id);
+
+            var text2 = $(this).data('status');
+            $("#mahasiswa option").filter(function() {              
+                return this.text == text2; 
+            }).prop('selected', true);
+        });
+
         $('#mahasiswa').on('change',function() {
-            var mahasiswa =  $('#edit-absensi').data('id');
+            var mahasiswa =  $('#id-mahasiswa').val();
             var value = $(this).val();
             $.ajax({
                 type: 'POST',
-                url: '{{ route("dosen.jadwal.absensi.update", ['id' => $jurnal->id, 'pertemuan' => $jurnal->pertemuan]) }}',
+                url: '{{ route("jadwal.absensi.update", ['id' => $jurnal->id, 'pertemuan' => $jurnal->pertemuan]) }}',
                 data:{
                     mahasiswa: mahasiswa,
                     status: value
                 },
                 success: function(data){
+                    $('#modal-edit-absensi').modal('hide');
                     toastr.success(data.message);
                     var table = $('#absensi-mahasiswa').dataTable();
                     table.fnDraw(false);
@@ -180,15 +199,10 @@
             });
         });
 
-        var text2 = $('#edit-absensi').data('status');
-        $("#mySelect2 option").filter(function() {
-            return this.text == text2; 
-        }).attr('selected', true);
-
         setInterval(function(){
             var table = $('#absensi-mahasiswa').dataTable();
             table.fnDraw(false);
-            console.log('refreshed');
+            // console.log('refreshed');
         }, 10000);
     });
 </script>

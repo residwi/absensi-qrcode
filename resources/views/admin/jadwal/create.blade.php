@@ -41,7 +41,7 @@
                         <div class="form-group has-feedback {{ $errors->has('hari') ? 'has-error' : '' }}">
                             <label for="hari">Hari</label><span class="text-danger"> *</span>
                             <select id="hari" class="form-control" name="hari" required data-placeholder="Pilih Hari">
-                                <option></option>
+                                <option disabled>Pilih Hari</option>
                                 <option value="1">Senin</option>
                                 <option value="2">Selasa</option>
                                 <option value="3">Rabu</option>
@@ -155,15 +155,6 @@
         },
         templateResult: ResultTemplater,
         templateSelection: SelectionTemplater
-    });
-
-    $("#hari").select2({
-        placeholder: function(){            
-            $(this).data('placeholder');
-        },
-        minimumInputLength: 1,
-        allowClear: true,
-        cache: true
     });
 
     function ResultTemplater(item) {        

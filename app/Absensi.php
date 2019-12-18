@@ -32,7 +32,7 @@ class Absensi extends Model
         return $status[$value - 1];
     }
 
-    public function setHariAttribute($value)
+    public function setStatusAttribute($value)
     {
         $status = [
             'Tidak Hadir',

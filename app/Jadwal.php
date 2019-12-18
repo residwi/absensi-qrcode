@@ -50,20 +50,21 @@ class Jadwal extends Model
        return $hari[$value - 1];
     }
 
-    // public function setHariAttribute($value)
-    // {
-    //    $hari = [
-    //        'Senin',
-    //        'Selasa',
-    //        'Rabu',
-    //        'Kamis',
-    //        'Jum\'at',
-    //        'Sabtu',
-    //        'Minggu',
-    //    ];
+    public function setHariAttribute($value)
+    {
+       $hari = [
+           'Senin',
+           'Selasa',
+           'Rabu',
+           'Kamis',
+           'Jum\'at',
+           'Sabtu',
+           'Minggu',
+       ];
 
-    //    $this->attributes['hari'] = array_search($value, $hari) + 1;
-    // }
+       $this->attributes['hari'] = array_search($value, $hari) + 1;
+    }
+
 
     public function setJamMulaiAttribute($value)
     {

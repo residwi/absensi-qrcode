@@ -56,12 +56,12 @@
             @endif
                 <!-- Navbar Right Menu -->
                 <div class="navbar-custom-menu">
-                    <div class="text-center text-uppercase" style="margin-right: 15px; margin-top: 5px; color: white">
+                    <div class="text-center" style="margin-right: 15px; margin-top: 5px; color: white">
                         <div>
-                            <b id="tampil-tanggal"></b>
+                            <strong id="tampil-tanggal"></strong>
                         </div>
                         <div>
-                            <b id="tampil-jam"></b>
+                            <strong id="tampil-jam"></strong>
                         </div>
                     </div>
                     <ul class="nav navbar-nav">
@@ -133,9 +133,9 @@
         <footer class="main-footer">
             {{-- @yield('footer') --}}
             <div class="pull-right hidden-xs">
-                <b>Version</b> 1.0
+                <b>Version</b> 2.0
             </div>
-            <strong>Copyright © {{ date('Y') }} <a href="#">Traveliez</a>.</strong> All rights
+            <strong>Copyright © {{ date('Y') }} <a href="#">Teknik Informatika Citra Raya</a>.</strong> All rights
             reserved.
         </footer>
         {{-- @endif --}}

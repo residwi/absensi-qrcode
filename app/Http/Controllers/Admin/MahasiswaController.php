@@ -135,21 +135,10 @@ class MahasiswaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(MahasiswaRequest $request, $id)
     {
-        $mahasiswa = User::with('authable')->where('username', $id)->first();
-
-        $validated = $request->validate([
-            'nomor_induk' => 'required|unique:users,username,' . $mahasiswa->id,
-            'nama' => 'required',
-            'alamat' => 'nullable|string',
-            'no_telp' => 'nullable|string',
-            'tanggal_lahir' => 'nullable|date',
-            'jenis_kelamin' => 'required',
-            'email' => 'required|email|unique:mahasiswa,email,' . $mahasiswa->authable->id,
-            'password' => 'nullable|confirmed',
-            'photo' => 'nullable|image|max:2048',
-        ]);
+        $mahasiswa = User::with('authable')->where('username', $id)->firstOrFail();
+        $validated = $request->validated();
 
         $mahasiswa->authable->nama = $validated['nama'];
         $mahasiswa->authable->tanggal_lahir = $validated['tanggal_lahir'];

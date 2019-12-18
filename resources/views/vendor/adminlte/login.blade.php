@@ -40,7 +40,7 @@
                 <div class="row">
                     <div class="col-xs-8">
                         <div class="icheck-primary">
-                            <input type="checkbox" name="remember" id="remember" checked>
+                            <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
                             <label for="remember">{{ __('adminlte::adminlte.remember_me') }}</label>
                         </div>
                     </div>

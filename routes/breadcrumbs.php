@@ -98,25 +98,29 @@ Breadcrumbs::for('password', function ($trail) {
 // Home > Jadwal Dosen
 Breadcrumbs::for('jadwaldosen', function ($trail) {
     $trail->parent('home');
-    $trail->push('Jadwal Dosen', route('dosen.jadwal.index'));
+    if (auth()->user()->getRole() == 'admin') {
+        $trail->push('Jadwal', route('jadwal.index'));
+    } else {
+        $trail->push('Jadwal Dosen', route('jadwal.dosen.index'));
+    }
 });
 
 // Home > Jadwal Dosen > [Nama Matkul]
 Breadcrumbs::for('pertemuan', function ($trail, $jadwal) {
     $trail->parent('jadwaldosen');
-    $trail->push($jadwal->matkul->kode . ' - ' . $jadwal->matkul->nama, route("dosen.jadwal.pertemuan", $jadwal));
+    $trail->push($jadwal->matkul->kode . ' - ' . $jadwal->matkul->nama, route("jadwal.pertemuan", $jadwal));
 });
 
 // Home > Jadwal Dosen > [Nama Matkul] > Pertemuan / Buat Jurnal
 Breadcrumbs::for('jurnal', function ($trail, $jadwal, $jurnal) {
     $trail->parent('pertemuan', $jadwal);
-    $trail->push('Pertemuan ke - ' . $jurnal->pertemuan, route('dosen.jadwal.jurnal.create', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]));
+    $trail->push('Pertemuan ke - ' . $jurnal->pertemuan, route('jadwal.jurnal.create', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]));
 });
 
 // Home > Jadwal Dosen > [Nama Matkul] > Absensi
 Breadcrumbs::for('absensi', function ($trail, $jadwal, $jurnal) {
     $trail->parent('pertemuan', $jadwal);
-    $trail->push('Absensi', route('dosen.jadwal.absensi.index', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]));
+    $trail->push('Absensi', route('jadwal.absensi.index', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]));
 });
 
 

@@ -15,8 +15,7 @@
         <div class="box">
             <!-- /.box-header -->
             <div class="box-body">
-                <form role="form" method="POST" action="{{ route('jadwal.update', $jadwal->id) }}"
-                    enctype="multipart/form-data">
+                <form role="form" method="POST" action="{{ route('jadwal.update', $jadwal->id) }}">
                     @csrf
                     @method('put')
                     <div class="box-body">
@@ -48,7 +47,7 @@
                             <label for="hari">Hari</label><span class="text-danger"> *</span>
                             <select id="hari" class="form-control" name="hari" required
                                 data-placeholder="{{ $jadwal->hari }}">
-                                <option></option>
+                                <option disabled>Pilih Hari</option>
                                 <option value="1">Senin</option>
                                 <option value="2">Selasa</option>
                                 <option value="3">Rabu</option>
@@ -167,15 +166,6 @@
         },
         templateResult: ResultTemplater,
         templateSelection: SelectionTemplater
-    });
-
-    $("#hari").select2({
-        placeholder: function(){            
-            $(this).data('placeholder');
-        },
-        minimumInputLength: 1,
-        allowClear: true,
-        cache: true
     });
 
     function ResultTemplater(item) {        

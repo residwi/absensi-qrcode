@@ -40,7 +40,7 @@
             <!-- /.box-header -->
             <div class="box-body">
                 <div class="row margin">
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <ul class="list-unstyled">
                             <li class="margin-bottom"><strong><i class="fas fa-fw fa-book"></i> Mata Kuliah</strong>
                             </li>
@@ -48,7 +48,7 @@
                             <li><b>Nama</b> : {{ $jadwal->matkul->nama }}</li>
                         </ul>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <ul class="list-unstyled">
                             <li class="margin-bottom"><strong><i class="fas fa-fw fa-user-tie"></i> Dosen
                                     Pengajar</strong></li>
@@ -56,12 +56,23 @@
                             <li><b>Nama</b> : {{ $jadwal->schedulable->nama }}</li>
                         </ul>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <ul class="list-unstyled">
                             <li class="margin-bottom"><strong><i class="fas fa-fw fa-clock"></i> Hari & Jam</strong>
                             </li>
                             <li><b>Jam</b> : {{ $jadwal->jam_mulai . ' - ' . $jadwal->jam_selesai }}</li>
                             <li><b>Hari</b> : {{ $jadwal->hari }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-3">
+                        <ul class="list-unstyled">
+                            <li class="margin-bottom"><strong><i class="fas fa-fw fa-qrcode"></i> QR Code Absen</strong>
+                            </li>
+                            @if ($qrcode_downloaded)
+                                <li><a href="{{ route('jadwal.jurnal.qrcode', $jadwal->id) }}" type="button" class="btn btn-success"><i class="fas fa-fw fa-download"></i> Download</a></li>
+                            @else
+                                <li><span class="bg-danger">Silahkan buat jurnal terlebih dahulu</span></li> 
+                            @endif
                         </ul>
                     </div>
                 </div>
@@ -82,7 +93,6 @@
                             <th>Pertemuan</th>
                             <th>Materi</th>
                             <th>Keterangan</th>
-                            <th>QR Code Absen</th>
                             <th>Opsi</th>
                         </tr>
                     </thead>
@@ -91,31 +101,6 @@
         </div>
     </div>
 </div>
-
-@if (session('status'))
-<div class="modal fade in" id="modal-default" style="display: block; padding-right: 17px;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span></button>
-                <h4 class="modal-title">Informasi</h4>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-success">
-                    <h4><i class="icon fas fa-fw fa-check"></i> Success</h4>
-                    {{ session('status') }}
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
-            </div>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-@endif
 @stop
 
 
@@ -150,18 +135,17 @@
                 order: [
                     [0, 'asc']
                 ],
-                ajax: '{{ route("dosen.jadwal.pertemuan", $jadwal->id) }}',
+                ajax: '{{ route("jadwal.pertemuan", $jadwal->id) }}',
                 columns: [
                     { data: 'pertemuan' },
                     { data: 'materi' },
                     { data: 'keterangan' },
-                    { data: 'qrcode' },
                     { data: 'action' },
                 ]
             });
             
-        @if(session('status'))
-                $('#modal-default').modal();
+        @if (session('status'))
+            toastr.success('{{ session('status') }}');
         @endif
     });
 </script>

@@ -117,13 +117,15 @@ class JadwalController extends Controller
      */
     public function destroy($id)
     {
-        Jadwal::find($id)->delete();
+        $jadwal = Jadwal::find($id);
+        $jadwal->where('matkul_id', $jadwal->matkul_id)->delete();
         return redirect()->route('jadwal.index')->with('status', 'Jadwal berhasil di hapus');
     }
 
     public function dosen()
     {
         if (request()->ajax()) {
+            // menampilkan jadwal dosen yang sedang login
             $jadwalDosen = Jadwal::dosen()->where('schedulable_id', auth()->user()->authable_id)->with('matkul')->get();
 
             return datatables()->of($jadwalDosen)
@@ -143,7 +145,7 @@ class JadwalController extends Controller
                     return Jadwal::mahasiswa()->where('matkul_id', $jadwalDosen->matkul_id)->count();
                 })
                 ->addColumn('action', function ($jadwalDosen) {
-                    return '<a href="' . route('dosen.jadwal.pertemuan', $jadwalDosen->id) . '" data-toggle="tooltip" data-original-title="Detail Jadwal" title="Detail Jadwal" class="btn btn-info"> <span class="fas fa-fw fa-calendar-day"></span></a>';
+                    return '<a href="' . route('jadwal.pertemuan', $jadwalDosen->id) . '" data-toggle="tooltip" data-original-title="Detail Jadwal" title="Detail Jadwal" class="btn btn-info"> <span class="fas fa-fw fa-calendar-day"></span></a>';
                 })
                 ->only(['kode_matkul', 'nama_matkul', 'jam', 'hari', 'ruang', 'total_peserta', 'action'])
                 ->rawColumns(['action'])
@@ -155,65 +157,72 @@ class JadwalController extends Controller
 
     public function pertemuan($id)
     {
-        $jadwalDosen = Jadwal::dosen()->where('schedulable_id', auth()->user()->authable_id)->whereId($id)->with('matkul')->firstOrFail();
+        // menampilkan table pertemuan pada jadwal dosen untuk admin
+        if (auth()->user()->getRole() == 'admin') {
+            $jadwalDosen = Jadwal::dosen()->whereId($id)->with('matkul')->firstOrFail();
+        } else {
+            // menampilkan table pertemuan pada jadwal dosen yang sedang login
+            $jadwalDosen = Jadwal::dosen()->where('schedulable_id', auth()->user()->authable_id)->whereId($id)->with('matkul')->firstOrFail();
+        }
+
+        $jurnal = Jurnal::where('jadwal_id', $id)->get();
 
         if (request()->ajax()) {
-            $jurnal = Jurnal::where('jadwal_id', $id)->get();
-
             return datatables()->of($jurnal)
                 ->addColumn('action', function ($jurnal) {
+                    // cek apakah pertemuan sebelumnya sudah dilakukan
                     $pertemuanSebelumnya = Jurnal::where('id', '<', $jurnal->id)->orderBy('id', 'desc')->first();
+                    // jika bukan pertemuan pertama
                     if ($jurnal->pertemuan !== 1) {
-                        if (!empty($pertemuanSebelumnya->qrcode_token)) {
-                            if (!empty($jurnal->qrcode_token)) {
-                                return '<a href="' . route('dosen.jadwal.absensi.index', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]) . '" data-toggle="tooltip" data-original-title="Absensi" title="Absensi" class="btn btn-success"> <span class="fas fa-fw fa-user-check"></span> Absensi</a>';
+                        // jika pertemuan sebelumnya sudah dilakukan
+                        if (!empty($pertemuanSebelumnya->materi)) {
+                            // jika jurnal sudah dibuat maka bisa absensi
+                            if (!empty($jurnal->materi)) {
+                                return '<a href="' . route('jadwal.absensi.index', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]) . '" data-toggle="tooltip" data-original-title="Absensi" title="Absensi" class="btn btn-success"> <span class="fas fa-fw fa-user-check"></span> Absensi</a>';
                             } else {
-                                return '<a href="' . route('dosen.jadwal.jurnal.create', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]) . '" data-toggle="tooltip" data-original-title="Buat Jurnal" title="Buat Jurnal" class="btn btn-info"> <span class="fas fa-fw fa-plus-square"></span> Buat Jurnal</a>';
+                                // hanya admin yang bisa buat jurnal
+                                if (auth()->user()->getRole() == 'admin') {
+                                    return '<a href="' . route('jadwal.jurnal.create', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]) . '" data-toggle="tooltip" data-original-title="Buat Jurnal" title="Buat Jurnal" class="btn btn-info"> <span class="fas fa-fw fa-plus-square"></span> Buat Jurnal</a>';
+                                }
                             }
-                        } else {
-                            return '<span class="label label-warning">Belum Terlaksana</span>';
                         }
                     } else {
-                        if (!empty($jurnal->qrcode_token)) {
-                            return '<a href="' . route('dosen.jadwal.absensi.index', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]) . '" data-toggle="tooltip" data-original-title="Absensi" title="Absensi" class="btn btn-success"> <span class="fas fa-fw fa-user-check"></span> Absensi</a>';
+                        if (!empty($jurnal->materi)) {
+                            return '<a href="' . route('jadwal.absensi.index', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]) . '" data-toggle="tooltip" data-original-title="Absensi" title="Absensi" class="btn btn-success"> <span class="fas fa-fw fa-user-check"></span> Absensi</a>';
                         } else {
-                            return '<a href="' . route('dosen.jadwal.jurnal.create', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]) . '" data-toggle="tooltip" data-original-title="Buat Jurnal" title="Buat Jurnal" class="btn btn-info"> <span class="fas fa-fw fa-plus-square"></span> Buat Jurnal</a>';
+                            // hanya admin yang bisa buat jurnal
+                            if (auth()->user()->getRole() == 'admin') {
+                                return '<a href="' . route('jadwal.jurnal.create', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]) . '" data-toggle="tooltip" data-original-title="Buat Jurnal" title="Buat Jurnal" class="btn btn-info"> <span class="fas fa-fw fa-plus-square"></span> Buat Jurnal</a>';
+                            }
                         }
                     }
-                })
-                ->addColumn('qrcode', function ($jurnal) {
-                    if (!empty($jurnal->qrcode_token)) {
-                        return '<a href="' . route('dosen.jadwal.jurnal.qrcode', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]) . '" data-toggle="tooltip" data-original-title="QR Code" title="QR Code" class="btn bg-navy"> <i class="fas fa-2x fa-qrcode"></i></a>';
-                    } else {
-                        return '-';
-                    }
+
+                    return '<span class="label label-warning">Belum Terlaksana</span>';
                 })
                 ->editColumn('materi', function ($jurnal) {
-                    if (!empty($jurnal->materi)) {
-                        return $jurnal->materi;
-                    } else {
-                        return '-';
-                    }
+                    return $jurnal->materi ?? '-';
                 })
                 ->editColumn('keterangan', function ($jurnal) {
-                    if (!empty($jurnal->keterangan)) {
-                        return $jurnal->keterangan;
-                    } else {
-                        return '-';
-                    }
+                    return $jurnal->keterangan ?? '-';
                 })
                 ->only(['materi', 'keterangan', 'pertemuan', 'qrcode', 'action'])
                 ->rawColumns(['qrcode', 'action'])
                 ->make(true);
         }
 
-        return view('dosen.pertemuan', ['jadwal' => $jadwalDosen]);
+        $isDownloaded = $jurnal->map(function ($item, $key)
+        {
+            return isset($item->materi);
+        });
+
+        return view('dosen.pertemuan', ['jadwal' => $jadwalDosen, 'qrcode_downloaded' => $isDownloaded[0]]);
     }
 
     public function getDatatables()
     {
         if (request()->ajax()) {
-            $dosen = Jadwal::dosen()->with('matkul')->get();
+            // menampilakan data jadwal dosen beserta mata kuliah yang diajar
+            $dosen = Jadwal::dosen()->with('matkul', 'jurnals')->get();
 
             return datatables()->of($dosen)
                 ->addColumn('kode_matkul', function ($dosen) {
@@ -235,7 +244,7 @@ class JadwalController extends Controller
                     return Jadwal::mahasiswa()->where('matkul_id', $dosen->matkul_id)->count();
                 })
                 ->addColumn('action', function ($dosen) {
-                    return '<form action="' . route('jadwal.destroy', $dosen->id) . '" method="POST"> <a href="' . route('jadwal.show', $dosen->id) . '" data-toggle="tooltip" data-original-title="Detail Jadwal" title="Detail Jadwal" class="btn btn-info"> <span class="fas fa-fw fa-calendar-day"></span></a> <a href="' . route('jadwal.edit', $dosen->id) . '" data-toggle="tooltip" data-original-title="Edit" title="Edit" class="btn btn-success"><span class="fas fa-fw fa-edit"></span></a> ' . csrf_field() . ' ' . method_field("DELETE") . ' <button type="submit" class="btn btn-danger" onclick="return confirm(\'Apakah anda yakin ingin menghapusnya?\')" data-toggle="tooltip" data-original-title="Hapus" title="Hapus"><span class="fas fa-fw fa-trash-alt"></span></button> </form>';
+                    return '<form action="' . route('jadwal.destroy', $dosen->id) . '" method="POST"> <a href="' . route('jadwal.show', $dosen->id) . '" data-toggle="tooltip" data-original-title="Detail Jadwal" title="Detail Jadwal" class="btn btn-primary"> <span class="fas fa-fw fa-calendar-day"></span></a> <a href="' . route('jadwal.pertemuan', $dosen->id) . '" data-toggle="tooltip" data-original-title="Buat Jurnal" title="Buat Jurnal" class="btn btn-info"> <span class="fas fa-fw fa-plus-square"></span></a> <a href="' . route('jadwal.edit', $dosen->id) . '" data-toggle="tooltip" data-original-title="Edit" title="Edit" class="btn btn-success"><span class="fas fa-fw fa-edit"></span></a> ' . csrf_field() . ' ' . method_field("DELETE") . ' <button type="submit" class="btn btn-danger" onclick="return confirm(\'Apakah anda yakin ingin menghapusnya?\')" data-toggle="tooltip" data-original-title="Hapus" title="Hapus"><span class="fas fa-fw fa-trash-alt"></span></button> </form>';
                 })
                 ->only(['kode_matkul', 'nama_matkul', 'dosen_pengajar', 'jam', 'hari', 'ruang', 'total_peserta', 'action'])
                 ->rawColumns(['action'])
@@ -246,6 +255,7 @@ class JadwalController extends Controller
     public function getDatatablesMahasiswa($matkul_id)
     {
         if (request()->ajax()) {
+            // menampilkan data mahasiswa yang mengikuti mata kuliah
             $mahasiswa = Jadwal::mahasiswa()->with('schedulable.authInfo')->where('matkul_id', $matkul_id)->get();
 
             return datatables()->of($mahasiswa)
@@ -278,28 +288,17 @@ class JadwalController extends Controller
         $validated = $request->validate([
             'mahasiswa' =>  'required',
         ]);
-
+        // melakukan pengecekan apakah mahasiswa sudah terdaftar pada mata kuliah atau belum
         $checkMahasiswaIsExists = Jadwal::where('schedulable_id', $validated['mahasiswa'])->where('schedulable_type', 'App\Mahasiswa')->where('matkul_id', $jadwal->matkul_id)->exists();
         if ($checkMahasiswaIsExists) {
             return response()->json(['errors' => ['mahasiswa' => ['Mahasiswa sudah terdaftar di jadwal ini']]], 422);
         }
 
         $mahasiswa = Mahasiswa::find($validated['mahasiswa']);
-
-        $hari = [
-            'Senin',
-            'Selasa',
-            'Rabu',
-            'Kamis',
-            'Jum\'at',
-            'Sabtu',
-            'Minggu',
-        ];
-        $convertHari = array_search($jadwal->hari, $hari) + 1;
-
+        
         $jadwalMahasiswa = $mahasiswa->schedules()->create([
             'matkul_id' => $jadwal->matkul_id,
-            'hari' => $convertHari,
+            'hari' => $jadwal->hari,
             'jam_mulai' => $jadwal->jam_mulai,
             'jam_selesai' => $jadwal->jam_selesai,
         ]);
@@ -309,6 +308,7 @@ class JadwalController extends Controller
 
     public function deleteJadwalMahasiswa($id, $mahasiswa)
     {
+        // menghapus mahasiswa dari mata kuliah yang diikuti
         $mahasiswa = Mahasiswa::find($mahasiswa);
         $mahasiswa->schedules()->delete();
 

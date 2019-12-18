@@ -60,31 +60,6 @@
         </div>
     </div>
 </div>
-
-@if (session('status'))
-<div class="modal fade in" id="modal-default" style="display: block; padding-right: 17px;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span></button>
-                <h4 class="modal-title">Informasi</h4>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-success">
-                    <h4><i class="icon fas fa-fw fa-check"></i> Success</h4>
-                    {{ session('status') }}
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
-            </div>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-@endif
 @stop
 
 
@@ -130,8 +105,8 @@
                 ]
             });
         
-        @if(session('status'))
-                $('#modal-default').modal();
+        @if (session('status'))
+            toastr.success('{{ session('status') }}');
         @endif
     });
 </script>

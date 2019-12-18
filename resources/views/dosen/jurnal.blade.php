@@ -16,7 +16,7 @@
             <!-- /.box-header -->
             <div class="box-body">
                 <form role="form" method="POST"
-                    action="{{ route('dosen.jadwal.jurnal.store', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]) }}">
+                    action="{{ route('jadwal.jurnal.store', ['id' => $jurnal->jadwal_id, 'pertemuan' => $jurnal->pertemuan]) }}">
                     @csrf
                     <div class="box-body">
                         <div class="form-group has-feedback {{ $errors->has('materi') ? 'has-error' : '' }}">

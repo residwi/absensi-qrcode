@@ -54,7 +54,7 @@ class DosenController extends Controller
     {
         if ($request->ajax()) {
             $search = $request->query('q');
-            $matkul = Dosen::select('dosen.id', 'users.username', 'dosen.nama')
+            $matkul = Dosen::select('users.authable_id as id', 'users.username', 'dosen.nama')
                 ->join('users', 'users.authable_id', '=', 'dosen.id')
                 ->where('users.authable_type', 'App\Dosen')
                 ->where(function ($query) use ($search) {
@@ -140,21 +140,11 @@ class DosenController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(DosenRequest $request, $id)
     {
-        $dosen = User::with('authable')->where('username', $id)->first();
+        $dosen = User::with('authable')->where('username', $id)->firstOrFail();
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'nomor_induk' => 'required|unique:users,username,' . $dosen->id,
-            'nama' => 'required',
-            'alamat' => 'nullable|string',
-            'no_telp' => 'nullable|string',
-            'tanggal_lahir' => 'nullable|date',
-            'jenis_kelamin' => 'required',
-            'email' => 'required|email|unique:dosen,email,' . $dosen->authable->id,
-            'password' => 'nullable|confirmed',
-            'photo' => 'nullable|image|max:2048',
-        ]);
         $dosen->authable->nama = $validated['nama'];
         $dosen->authable->tanggal_lahir = $validated['tanggal_lahir'];
         $dosen->authable->alamat = $validated['alamat'];
